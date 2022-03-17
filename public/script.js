@@ -1,7 +1,7 @@
 var socket = io("https://esp32-iot-template.herokuapp.com");
 
 socket.on("server-send-browser", function(data){
-    if (data.value == "led on") {
+    if (data.value == "on") {
         $("#console").text("LED ON");
         $("#led").css("background-color", "green");
     } else {
