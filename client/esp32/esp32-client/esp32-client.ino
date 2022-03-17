@@ -33,7 +33,7 @@ void server_send_data(const char *data, size_t length){
   Serial.printf(parsed["value"]);
   Serial.printf("\n");
   if(strcmp(parsed["value"], "on") == 0){
-      digitalWrite(ledPin, LOW);
+      digitalWrite(ledPin, HIGH);
       
       JSONencoder["name"] = "ESP client";
       JSONencoder["address"] = "led";
@@ -44,7 +44,7 @@ void server_send_data(const char *data, size_t length){
       socket.emit("client-send-data",JSONmessageBuffer);
   }
   else{
-      digitalWrite(ledPin, HIGH);
+      digitalWrite(ledPin, LOW);
 
       JSONencoder["name"] = "ESP client";
       JSONencoder["address"] = "led";
@@ -212,7 +212,7 @@ void setup(void) {
   Serial.begin(115200);
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(ledPin, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(LED_BUILTIN, LOW);
 
   Serial.setDebugOutput(true);
 
