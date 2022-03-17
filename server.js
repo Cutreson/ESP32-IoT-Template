@@ -27,4 +27,9 @@ io.on("connection", function(socket){
         console.log(data);
         socket.broadcast.emit("server-send-data", data);
     });
+
+    socket.on("client-send-data", function(data){
+        console.log(data);
+        socket.broadcast.emit("server-send-browser", data);
+    });
 });
