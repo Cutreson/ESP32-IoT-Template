@@ -15,18 +15,46 @@ const char* password = "28031997";
 WebServer server(80);
 //////////////////////////////////////////////////////////
 #define ledPin 2
-const char *socketServer = "https://esp32-iot-template.herokuapp.com";
+const char *socketServer = "esp32-iot-template.herokuapp.com";
 const int socketPort = 80;
 
 SocketIoClient socket;
 
+StaticJsonBuffer<300> JSONbuffer;
+JsonObject& JSONencoder = JSONbuffer.createObject();
+
 void server_send_data(const char *data, size_t length){ 
   StaticJsonBuffer<300> JSONBuffer; //Memory pool
   JsonObject& parsed = JSONBuffer.parseObject(data); //Parse message
-  Serial.printf(parsed["name"] + "\n");
-  Serial.printf(parsed["address"] + "\n");
-  Serial.printf(parsed["value"] + "\n");
-  
+  Serial.printf(parsed["name"]);
+  Serial.printf("\n");
+  Serial.printf(parsed["address"]);
+  Serial.printf("\n");
+  Serial.printf(parsed["value"]);
+  Serial.printf("\n");
+  if(strcmp(parsed["value"], "on") == 0){
+      digitalWrite(ledPin, LOW);
+      
+      JSONencoder["name"] = "ESP client";
+      JSONencoder["address"] = "led";
+      JSONencoder["value"] = "on";
+      char JSONmessageBuffer[300];
+      JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+      Serial.println(JSONmessageBuffer);
+      socket.emit("client-send-data",JSONmessageBuffer);
+    }
+  if(strcmp(parsed["value"], "off") == 0){
+      digitalWrite(ledPin, HIGH);
+
+      JSONencoder["name"] = "ESP client";
+      JSONencoder["address"] = "led";
+      JSONencoder["value"] = "off";
+      char JSONmessageBuffer[300];
+      JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+      Serial.println(JSONmessageBuffer);
+      socket.emit("client-send-data",JSONmessageBuffer);
+      
+    }
 }
 //////////////////////////////////////////////////////////
 /*
