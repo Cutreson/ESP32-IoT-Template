@@ -23,7 +23,7 @@ app.get("/home", function(req, res){
 
 io.on("connection", function(socket){
     console.log("Client connected..");
-    socket.on("client-send-data", function(data){
+    socket.on("browser-send-data", function(data){
         console.log(data);
         socket.broadcast.emit("server-send-data", data);
     });

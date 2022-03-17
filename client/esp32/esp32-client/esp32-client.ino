@@ -42,17 +42,17 @@ void server_send_data(const char *data, size_t length){
       JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
       Serial.println(JSONmessageBuffer);
       socket.emit("client-send-data",JSONmessageBuffer);
-    }
-  if(strcmp(parsed["value"], "off") == 0){
+  }
+  else{
       digitalWrite(ledPin, HIGH);
 
       JSONencoder["name"] = "ESP client";
       JSONencoder["address"] = "led";
       JSONencoder["value"] = "off";
-      char JSONmessageBuffer[300];
-      JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-      Serial.println(JSONmessageBuffer);
-      socket.emit("client-send-data",JSONmessageBuffer);
+      char JSONmessageBuffer1[300];
+      JSONencoder.prettyPrintTo(JSONmessageBuffer1, sizeof(JSONmessageBuffer1));
+      Serial.println(JSONmessageBuffer1);
+      socket.emit("client-send-data",JSONmessageBuffer1);
       
     }
 }
