@@ -19,41 +19,41 @@ const char *socketServer = "esp32-iot-template.herokuapp.com";
 const int socketPort = 80;
 
 SocketIoClient socket;
-
-StaticJsonBuffer<300> JSONbuffer;
-JsonObject& JSONencoder = JSONbuffer.createObject();
-
-void server_send_data(const char *data, size_t length){ 
-  StaticJsonBuffer<300> JSONBuffer; //Memory pool
-  JsonObject& parsed = JSONBuffer.parseObject(data); //Parse message
+//chuyen du lieu nhan ve thanh json object
+JsonObject& dataReceiver(const char *data){
+  StaticJsonBuffer<300> jsonBuffer;
+  JsonObject& parsed = jsonBuffer.parseObject(data); //Parse message
+  Serial.printf("Server send data :\n");
   Serial.printf(parsed["name"]);
   Serial.printf("\n");
   Serial.printf(parsed["address"]);
   Serial.printf("\n");
   Serial.printf(parsed["value"]);
   Serial.printf("\n");
-  if(strcmp(parsed["value"], "on") == 0){
+  return parsed;
+  }
+//tao chuoi json tu cac tham so truyen vao
+char* dataSender(const char *client_name, const char *address, const char *value){
+  StaticJsonBuffer<300> jsonBuffer;
+  JsonObject& jsonEncoder = jsonBuffer.createObject();
+  jsonEncoder["name"] = client_name;
+  jsonEncoder["address"] = address;
+  jsonEncoder["value"] = value;
+  char JSONmessageBuffer[300];
+  jsonEncoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
+  Serial.println("Client send data :\n");
+  Serial.println(JSONmessageBuffer);
+  return JSONmessageBuffer;
+  }
+
+void server_send_data(const char *data, size_t length){ 
+  if(strcmp(dataReceiver(data)["value"], "on") == 0){
       digitalWrite(ledPin, HIGH);
-      
-      JSONencoder["name"] = "ESP client";
-      JSONencoder["address"] = "led";
-      JSONencoder["value"] = "on";
-      char JSONmessageBuffer[300];
-      JSONencoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-      Serial.println(JSONmessageBuffer);
-      socket.emit("client-send-data",JSONmessageBuffer);
+      socket.emit("client-send-data",dataSender("ESP client", "led", "on"));
   }
   else{
       digitalWrite(ledPin, LOW);
-
-      JSONencoder["name"] = "ESP client";
-      JSONencoder["address"] = "led";
-      JSONencoder["value"] = "off";
-      char JSONmessageBuffer1[300];
-      JSONencoder.prettyPrintTo(JSONmessageBuffer1, sizeof(JSONmessageBuffer1));
-      Serial.println(JSONmessageBuffer1);
-      socket.emit("client-send-data",JSONmessageBuffer1);
-      
+      socket.emit("client-send-data",dataSender("ESP client", "led", "off"));
     }
 }
 //////////////////////////////////////////////////////////
