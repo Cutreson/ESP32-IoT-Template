@@ -19,7 +19,8 @@ const char *socketServer = "esp32-iot-template.herokuapp.com";
 const int socketPort = 80;
 
 SocketIoClient socket;
-//chuyen du lieu nhan ve thanh json object
+char messageJsonEmit[300]; //message socket io emit len server
+//chuyen data json nhan ve thanh json object
 JsonObject& dataReceiver(const char *data){
   StaticJsonBuffer<300> jsonBuffer;
   JsonObject& parsed = jsonBuffer.parseObject(data); //Parse message
@@ -32,28 +33,29 @@ JsonObject& dataReceiver(const char *data){
   Serial.printf("\n");
   return parsed;
   }
-//tao chuoi json tu cac tham so truyen vao
-char* dataSender(const char *client_name, const char *address, const char *value){
+//tao chuoi json gui len server
+void dataSender(const char *client_name, const char *address, const char *value){
   StaticJsonBuffer<300> jsonBuffer;
   JsonObject& jsonEncoder = jsonBuffer.createObject();
   jsonEncoder["name"] = client_name;
   jsonEncoder["address"] = address;
   jsonEncoder["value"] = value;
   char JSONmessageBuffer[300];
-  jsonEncoder.prettyPrintTo(JSONmessageBuffer, sizeof(JSONmessageBuffer));
-  Serial.println("Client send data :\n");
-  Serial.println(JSONmessageBuffer);
-  return JSONmessageBuffer;
+  jsonEncoder.prettyPrintTo(messageJsonEmit, sizeof(messageJsonEmit));
+  //Serial.println("Client send data :\n");
+  //Serial.println(JSONmessageBuffer);
   }
-
+//function trong socket.on("server-send-data", server_send_data);
 void server_send_data(const char *data, size_t length){ 
   if(strcmp(dataReceiver(data)["value"], "on") == 0){
       digitalWrite(ledPin, HIGH);
-      socket.emit("client-send-data",dataSender("ESP client", "led", "on"));
+      dataSender("ESP client", "led", "on"); //tao chuoi json luu tai messageJsonEmit
+      socket.emit("client-send-data", messageJsonEmit);
   }
   else{
       digitalWrite(ledPin, LOW);
-      socket.emit("client-send-data",dataSender("ESP client", "led", "off"));
+      dataSender("ESP client", "led", "off");
+      socket.emit("client-send-data", messageJsonEmit );
     }
 }
 //////////////////////////////////////////////////////////
